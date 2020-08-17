@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  annotations:
+    product: workspace-platform
+  name: asp-net-core-library
+  description: ASP.NET Core Middleware.
+  tags:
+    - c-sharp
+spec:
+  type: library
+  lifecycle: production
+  owner: guest

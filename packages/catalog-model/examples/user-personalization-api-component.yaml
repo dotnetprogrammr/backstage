@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  annotations:
+    product: workspace-platform
+  name: user-personalization
+  description: Manages user specific preferences within Workspace
+  tags:
+    - c-sharp
+spec:
+  type: service
+  lifecycle: production
+  owner: guest
+  implementsApis:
+    - user-personalization-api

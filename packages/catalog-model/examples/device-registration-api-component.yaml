@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  annotations:
+    product: workspace-platform
+  name: device-registration
+  description: Stores registrations of client devices to allow events to be sent to them
+  tags:
+    - c-sharp
+spec:
+  type: service
+  lifecycle: production
+  owner: guest
+  implementsApis:
+    - device-registration-api
+    - device-registration-internal-api

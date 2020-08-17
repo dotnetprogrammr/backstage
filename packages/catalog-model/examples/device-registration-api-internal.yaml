@@ -1,0 +1,308 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: device-registration-internal-api
+  description: Stores registrations of client devices to allow events to be sent to them
+spec:
+  type: grpc
+  definition: |
+    // Copyright Citrix Systems, Inc. All rights reserved.
+
+    syntax = "proto3";
+
+    package Citrix.Wsp.Protobuf.DeviceRegistration.Management.v1;
+
+    option csharp_namespace = "Citrix.Wsp.Protobuf.DeviceRegistration.Management";
+
+    import "google/api/annotations.proto";
+    import "google/protobuf/empty.proto";
+    import "Citrix/Common/DeviceType.proto";
+
+    /*
+      Defines a collection of methods that allow a user to administer their devices.
+    */
+    service DeviceRegistrationManagement {
+      /// Retrieve a collection of devices matching the supplied parameters.
+      rpc ListDevices(ListCurrentUsersDevicesRequest)
+        returns (ListDevicesResponse) {
+          option (google.api.http) = {
+            get: "/devices"
+          };
+        }
+
+      /// Register a new device
+      rpc CreateDevice(CreateDeviceRequest)
+        returns (CreateDeviceResponse) {
+          option (google.api.http) = {
+            post: "/devices"
+            body: "*"
+          };
+        }
+
+      /// De-register a device
+      rpc DeleteDevice(DeleteDeviceRequest)
+        returns (google.protobuf.Empty) {
+          option (google.api.http) = {
+            delete: "/devices/{id}"
+          };
+        }
+    /*
+      Defines a collection of methods that allow an administrator to manage devices for a customer.
+    */
+
+      /// Retrieve a collection of devices matching the supplied parameters.
+      rpc ListCustomerDevices(ListCustomersDevicesRequest)
+        returns (ListDevicesResponse) {
+          option (google.api.http) = {
+            get: "customers/{customerId}/devices"
+          };
+        }
+
+      /// De-register a device
+      rpc DeleteCustomerDevice(DeleteDeviceRequest)
+        returns (google.protobuf.Empty) {
+          option (google.api.http) = {
+            delete: "customers/{customerId}/devices/{id}"
+          };
+        }
+
+    /*
+      Defines a collection of methods that allow a client to fetch the device registrations for a user.
+    */
+
+      // Retrieve a collection of device registrations matching the supplied parameters.
+      rpc ListUsersRegistrations(ListUsersRegistrationsRequest)
+        returns (ListRegistrationsResponse) {
+          option (google.api.http) = {
+            get: "users/{userId}/registrations"
+          };
+        }
+    }
+
+    /*
+      Represents a request to create a new device.
+    */
+    message CreateDeviceRequest {
+      /// The representation of the device.
+      Device		device			= 1;
+
+      /// General request information
+      CitrixContext request_context = 5;
+    }
+
+    /*
+      Represents the details of a new device.
+    */
+    message CreateDeviceResponse {
+      /// The unique identifier of the device.
+      string id = 1;
+    }
+
+    /*
+      Represents a request to delete a device.
+    */
+    message DeleteDeviceRequest {
+      /// The unique identifier of the device.
+      string		id				= 1;
+
+      /// General request information
+      CitrixContext request_context = 5;
+    }
+
+    /*
+      Represents the set of possible filters to be applied when retrieving the collection of devices for the current user.
+    */
+    message ListCurrentUsersDevicesRequest {
+      /// The maximum number of results to return in a single response.
+      int32			page_size		= 1;
+
+      /// The token that identifies a specific page of results.
+      string		page_token		= 2;
+      
+      /// The type of devices to return.
+      string		type		    = 3;
+
+      /// General request information
+      CitrixContext request_context = 5;
+    }
+
+    /*
+      Represents the set of possible filters to be applied when retrieving the collection of devices for a customer.
+    */
+    message ListCustomersDevicesRequest {
+      /// The maximum number of results to return in a single response.
+      int32			page_size		= 1;
+
+      /// The token that identifies a specific page of results.
+      string		page_token		= 2;
+
+      /// The type of devices to return.
+      string		type			= 3;
+
+      /// The unique identifier of the user whose devices should be returned.
+      string		user_id			= 4;
+
+      /// General request information
+      CitrixContext request_context = 5;
+    }
+
+    /*
+      Represents a collection of devices.
+    */
+    message ListDevicesResponse {
+      /// The collection of devices.
+      repeated Device devices = 1;
+
+      /// The token to be supplied in a subsequent request to retrieve the next page of results.
+      string next_page_token  = 2;
+    }
+
+    /*
+      Represents a collection of registrations.
+    */
+    message ListRegistrationsResponse {
+      /// The collection of registrations.
+      repeated Registration registrations = 1;
+
+      /// The token to be supplied in a subsequent request to retrieve the next page of results.
+      string next_page_token  = 2;
+    }
+
+    /*
+      Represents the set of possible filters to be applied when retrieving the collection of registrations for a user.
+    */
+    message ListUsersRegistrationsRequest {
+      /// The type of the devices for which registrations should be returned.
+      Citrix.Wsp.Protobuf.Common.v1.DeviceType		type			= 3;
+
+      /// The unique identifier of the user whose devices should be returned.
+      string									user_id			= 4;
+
+      /// General request information
+      CitrixContext								request_context = 5;
+    }
+
+    /*
+      Represents an application that is registering a device.
+    */
+    message Application {
+      /// Unique identifier for the application
+      string application_identifier = 1;
+
+      /// The name of the application.
+      string name					= 2;
+
+      /// The version of the application.
+      string version				= 3;
+    }
+
+    /*
+      Represents a device.
+    */
+    message Device {
+      /// The application that is registering the device.
+      Application								application   = 7;
+
+      /// The method by which this device should receive notifications.
+      DeliveryType								delivery_type = 9;
+
+      /// The refinement of the clarification of the device within the group defined by type.
+      string									form_factor   = 6;
+
+      /// The unique identifier of this device.
+      string									id            = 1;
+
+      /// The human-friendly name for this device.
+      string									name          = 2;
+
+      /// The details of the operating system running on the device.
+      Os										os            = 8;
+
+      /// The details of the Device's web browser if Applicable.
+      Browser									browser       = 10;
+
+      /// A collection of associated values for this device (e.g. language, screen height, screen width etc.).
+      map<string, string>						properties    = 16;
+
+      /// The unique identifier of the store against which this device is registered.
+      string									store_guid    = 3;
+
+      /// The token which identifies this device within the context of a notification service (e.g. APNS, FCM etc.).
+      string									token         = 4;
+
+      /// The classification of the device in a broad grouping, must be one of mobile, desktop or web.
+      Citrix.Wsp.Protobuf.Common.v1.DeviceType		type          = 5;
+    }
+
+    /*
+      Represents the operating system which the device is running.
+    */
+    message Os {
+      /// The identifier of the operating system (e.g. Windows, iOS, OSX etc.).
+      string type    = 1;
+
+      /// The operating system version.
+      string version = 2;
+    }
+
+    /*
+      Represents the registration of a device.
+    */
+    message Registration {
+      /// The application that is registering the device.
+      Application								application   = 5;
+
+      /// The method by which this device should receive notifications.
+      DeliveryType								delivery_type = 7;
+
+      /// The unique identifier of this device.
+      string									id            = 1;
+
+      /// The human-friendly name for this device.
+      string									name          = 2;
+
+      /// The details of the operating system running on the device.
+      Os										os            = 6;
+
+      /// The details of the Device's web browser if Applicable.
+      Browser									browser       = 8;
+
+      /// A collection of assiciated values for this device (e.g. language, screen height, screen width etc.).
+      map<string, string>						properties    = 16;
+
+      /// The value which identifies this device within the context of a notification service (e.g. APNS, FCM etc.).
+      string									secret         = 3;
+
+      /// The classification of the device in a broad grouping, must be one of mobile, desktop or web.
+      Citrix.Wsp.Protobuf.Common.v1.DeviceType		type          = 4;
+    }
+
+    /*
+      Represents the possible set of methods through which a client can receive notifications.
+    */
+    enum DeliveryType {
+      /// The client will receive notifications using a natvie Push Notification Service (e.g. APNS, FCM etc.).
+      PNS = 0;
+
+      /// The client will receive notifications over a web socket connection (i.e. SignalR).
+      REALTIME = 1;
+    }
+
+    /*
+      Stores the Citrix request context with the request
+    */
+    message CitrixContext {
+        string customer_id		= 1;
+
+        string instance_id		= 2;
+
+        string user_id			= 3;
+
+        string transaction_id	= 4;
+    }
+
+    message Browser {
+        string type		= 1;
+
+        string version  = 2;
+    }
