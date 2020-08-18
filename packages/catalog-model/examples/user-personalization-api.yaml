@@ -1,0 +1,281 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: workspace-user-personalization-api
+  description: Manages user specific preferences within Workspace
+spec:
+  type: openapi
+  definition: |
+    openapi: 3.0.0
+    servers:
+      - url: 'http://localhost:5000'
+    info:
+      description: Manages user specific preferences within Workspace.
+      title: Workspace User Personalization Service
+      version: 0.0.1
+    paths:
+      /endpoints:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/endpoints'
+          summary: The collection of available endpoints.
+          tags:
+            - Discovery
+      /status/connect:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/status%3Aconnect'
+            '521':
+              description: Unhealthy.
+          summary: >-
+            Connectivity Endpoint - determines if a dependent component is able to reach this component and is not blocked
+            by firewalls or routing issues. Must not call other dependencies.
+          tags:
+            - Health
+      /status/dependencies:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/status%3Adependencies'
+            '521':
+              description: Unhealthy.
+          summary: Dependency Health Endpoint - describes all dependencies (not just hard dependencies).
+          tags:
+            - Health
+      /status/instance/liveness:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/status%3Ainstance'
+            '521':
+              description: Unhealthy.
+          summary: Instance Liveness Endpoint - monitors whether the service instance is healthy. Should not check dependencies.
+          tags:
+            - Health
+      /status/instance/readiness:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/status%3Ainstance'
+            '521':
+              description: Unhealthy.
+          summary: >-
+            Instance Readiness Endpoint - monitors whether the service instance can accept new requests. (Checks critical
+            dependencies, configuration validation, schema validation, load validation etc.)
+          tags:
+            - Health
+      /status/up:
+        get:
+          responses:
+            '200':
+              $ref: '#/components/responses/status%3Aup'
+            '550':
+              description: Unhealthy.
+          summary: General Health Endpoint - monitors whether a service is healthy. Only used for monitoring and alerting.
+          tags:
+            - Health
+    tags:
+      - name: Configuration
+      - name: Discovery
+      - name: Health
+    components:
+      responses:
+        endpoints:
+          content:
+            application/xml:
+              example: >-
+                <?xml version="1.0" encoding="utf-8"?> <endpoints xmlns="http://citrix.com/deliveryservices/1-0/endpoints">
+                </endpoints>
+              schema:
+                $ref: '#/components/schemas/listOfEndpoints'
+          description: The collection of available endpoints with their capabilities.
+        'status:connect':
+          content:
+            application/json:
+              example:
+                branch: master
+                commit: 0c972d37e55dd660c156ff8802b3d4bf302ae3d9
+                component: user-personalization
+                product: wsp
+                schemaVersion: 2
+                timestamp: '2018-09-21T15:55:30Z'
+                version: 0.0.1
+              schema:
+                properties:
+                  branch:
+                    type: string
+                  commit:
+                    type: string
+                  component:
+                    type: string
+                  product:
+                    type: string
+                  schemaVersion:
+                    type: integer
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                type: object
+          description: The details of the service.
+        'status:dependencies':
+          content:
+            application/json:
+              example:
+                branch: master
+                commit: 0c972d37e55dd660c156ff8802b3d4bf302ae3d9
+                component: user-personalization
+                description: Manages user specific preferences within Workspace.
+                product: wsp
+                ring: 4
+                schemaVersion: 2
+                dependencies:
+                  - component: ws-cosmosdb
+                    product: azure-cosmosdb
+                    ring: 1
+                    reason: Stores user preferences
+                timestamp: '2018-09-21T15:55:30Z'
+                version: 0.0.1
+              schema:
+                allOf:
+                  - $ref: '#/components/responses/status%3Aup/content/application~1json/schema'
+                  - properties:
+                      dependencies:
+                        type: array
+                        items:
+                          properties:
+                            component:
+                              type: string
+                            product:
+                              type: string
+                            reason:
+                              type: string
+                            ring:
+                              type: integer
+                          type: object
+                      description:
+                        type: string
+                      ring:
+                        type: integer
+                    type: object
+          description: The details of the service.
+        'status:instance':
+          content:
+            application/json:
+              example:
+                branch: master
+                commit: 0c972d37e55dd660c156ff8802b3d4bf302ae3d9
+                component: user-personalization
+                description: Manages user specific preferences within Workspace.
+                hostname: user-personalization-host-58cb67df-27b57
+                httpStatusCode: 200
+                product: wsp
+                ring: 4
+                schemaVersion: 2
+                services:
+                  - component: ws-cosmosdb
+                    product: azure-cosmosdb
+                    requiredService: true
+                    subStatusCode: 200
+                    success: true
+                success: true
+                timestamp: '2018-09-21T15:55:30Z'
+                version: 0.0.1
+              schema:
+                allOf:
+                  - $ref: '#/components/responses/status%3Ainstance/content/application~1json/schema'
+                  - properties:
+                      description:
+                        type: string
+                      hostname:
+                        type: string
+                      httpStatusCode:
+                        type: integer
+                      services:
+                        type: array
+                        items:
+                          properties:
+                            component:
+                              type: string
+                            product:
+                              type: string
+                            requiredService:
+                              type: boolean
+                            subStatusCode:
+                              type: integer
+                            success:
+                              type: boolean
+                          type: object
+                      ring:
+                        type: integer
+                      success:
+                        type: boolean
+                    type: object
+          description: The details of the service instance.
+        'status:up':
+          content:
+            application/json:
+              example:
+                branch: master
+                commit: 0c972d37e55dd660c156ff8802b3d4bf302ae3d9
+                component: user-personalization
+                product: wsp
+                schemaVersion: 2
+                timestamp: '2018-09-21T15:55:30Z'
+                version: 0.0.1
+              schema:
+                properties:
+                  branch:
+                    type: string
+                  commit:
+                    type: string
+                  component:
+                    type: string
+                  product:
+                    type: string
+                  schemaVersion:
+                    type: integer
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                type: object
+          description: The details of the service.
+      schemas:
+        endpoint:
+          properties:
+            capabilities:
+              items:
+                properties:
+                  capability:
+                    type: string
+                type: object
+              type: array
+            id:
+              type: string
+              xml:
+                attribute: true
+            url:
+              type: string
+          type: object
+        listOfEndpoints:
+          items:
+            properties:
+              endpoint:
+                $ref: '#/components/schemas/endpoint'
+            type: object
+          type: array
+          xml:
+            prefix: xmlns
+            namespace: 'http://citrix.com/dazzleservices/2-0/endpoints'
+      securitySchemes:
+        citrixAuth:
+          type: http
+          scheme: CitrixAuth
+        citrixCloudAuth:
+          type: http
+          scheme: CWSAuth
