@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: user-personalization-api
+  name: user-personalization
   description: Manages user specific preferences within Workspace
 spec:
   type: service

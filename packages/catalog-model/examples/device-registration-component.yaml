@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: device-registration-api
+  name: device-registration
   description: Stores registrations of client devices to allow events to be sent to them
 spec:
   type: service
@@ -9,3 +9,4 @@ spec:
   owner: guest
   implementsApis:
     - device-registration-api
+    - device-registration-internal-api
