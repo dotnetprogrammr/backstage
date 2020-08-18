@@ -7,3 +7,5 @@ spec:
   type: service
   lifecycle: production
   owner: guest
+  implementsApis:
+    - device-registration-api
